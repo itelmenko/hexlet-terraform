@@ -40,3 +40,34 @@ resource "digitalocean_droplet" "web2" {
   region = "ams3"
   size   = "s-1vcpu-1gb"
 }
+
+resource "digitalocean_droplet" "web3" {
+  image  = "ubuntu-22-04-x64"
+  name   = "web-3"
+  region = "ams3"
+  size   = "s-1vcpu-1gb"
+}
+
+resource "digitalocean_loadbalancer" "public" {
+  name   = "loadbalancer-1"
+  region = "ams3"
+
+  forwarding_rule {
+    entry_port     = 80
+    entry_protocol = "http"
+
+    target_port     = 80
+    target_protocol = "http"
+  }
+
+  healthcheck {
+    port     = 22
+    protocol = "tcp"
+  }
+
+  droplet_ids = [
+    digitalocean_droplet.web1.id,
+    digitalocean_droplet.web2.id,
+    digitalocean_droplet.web3.id,
+  ]
+}
